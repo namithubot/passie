@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script>
+      AFRAME.registerComponent('spatial-haptic-pattern', {
+        schema: {
+          positions: { default: [] },  // Array of positions for spatial cues
+          intensity: { default: 0.5 }, // Default intensity of haptic feedback
+          duration: { default: 100 }   // Default duration of haptic feedback in milliseconds
+        },
+
+        init: function () {
+          var el = this.el;
+          var data = this.data;
+
+          // Create spatial cues
+          data.positions.forEach(function (position) {
+            var cue = document.createElement('a-entity');
+            cue.setAttribute('position', position);
+            cue.setAttribute('geometry', 'primitive: sphere; radius: 0.1');
+            cue.setAttribute('material', 'color: #FF0000');
+            el.appendChild(cue);
+          });
+
+          // Check if WebXR session is available
+          if (navigator.xr) {
+            // Listen for the keydown event to adjust haptic intensity
+            window.addEventListener('keydown', function (event) {
+              // Increase haptic intensity with 'X' key
+              if (event.key === 'x') {
+                data.intensity = Math.min(1, data.intensity + 0.1);
+              }
+              // Decrease haptic intensity with 'A' key
+              else if (event.key === 'a') {
+                data.intensity = Math.max(0, data.intensity - 0.1);
+              }
+            });
+
+            // Listen for the 'triggerdown' event to trigger haptic feedback
+            el.addEventListener('triggerdown', function (event) {
+              // Get the WebXR session
+              navigator.xr.requestSession('immersive-vr').then(function (session) {
+                // Get the input sources
+                session.inputSources.forEach(function (inputSource) {
+                  // Check if the input source is a controller
+                  if (inputSource.targetRayMode === 'tracked-pointer' && inputSource.gamepad) {
+                    // Check if the controller supports haptic feedback
+                    if (inputSource.gamepad.hapticActuators && inputSource.gamepad.hapticActuators.length > 0) {
+                      // Trigger haptic feedback
+                      inputSource.gamepad.hapticActuators[0].pulse(data.intensity, data.duration);
+                    }
+                  }
+                });
+              });
+            });
+          }
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <a-scene>
+      <!-- Attach the spatial-haptic-pattern component to the scene -->
+      <a-entity spatial-haptic-pattern="positions: 1 1 -3, -1 1 -3, 0 1 -4"></a-entity>
+
+      <!-- Camera and controllers -->
+      <a-entity camera position="0 1.6 0" look-controls>
+        <!-- Left controller -->
+        <a-entity oculus-touch-controls="hand: left"></a-entity>
+
+        <!-- Right controller -->
+        <a-entity oculus-touch-controls="hand: right"></a-entity>
+      </a-entity>
+
+      <!-- Ground plane -->
+      <a-plane rotation="-90 0 0" width="20" height="20" color="#7BC8A4"></a-plane>
+    </a-scene>
+  </body>
+</html>
