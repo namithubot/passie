@@ -24,27 +24,27 @@ AFRAME.registerComponent("passie-intensity-control", {
     var el = this.el;
 	var self  = this;
     el.addEventListener("ybuttondown", function (evt) {
-      self.data.intensity = clamp(0, 1, self.data.intensity + 0.2);
+      self.data.intensity = clamp(0, 1, self.data.intensity + 0.3);
 	  el.setAttribute('haptics', `events: triggerdown; dur: 1000; force: ${self.data.intensity}`);
 	  el.components.haptics.data.force = self.data.intensity;
     });
 
     el.addEventListener("xbuttondown", function (evt) {
-      self.data.intensity = clamp(0, 1, self.data.intensity - 0.2);
+      self.data.intensity = clamp(0, 1, self.data.intensity - 0.3);
 	  el.setAttribute('haptics', `events: triggerdown; dur: 1000; force: ${self.data.intensity}`);
 	  el.components.haptics.data.force = self.data.intensity;
 
     });
 
     el.addEventListener("bbuttondown", function (evt) {
-		self.data.intensity = clamp(0, 1, self.data.intensity + 0.2);
+		self.data.intensity = clamp(0, 1, self.data.intensity + 0.3);
 		el.setAttribute('haptics', `events: triggerdown; dur: 1000; force: ${self.data.intensity}`);
 		el.components.haptics.data.force = self.data.intensity;
 
     });
 
     el.addEventListener("abuttondown", function (evt) {
-		self.data.intensity = clamp(0, 1, self.data.intensity - 0.2);
+		self.data.intensity = clamp(0, 1, self.data.intensity - 0.3);
 		el.setAttribute('haptics', `events: triggerdown; dur: 1000; force: ${self.data.intensity}`);
 		el.components.haptics.data.force = self.data.intensity;
 
@@ -64,7 +64,10 @@ AFRAME.registerComponent("passie-intensity-control", {
     });
 
 	el.addEventListener('triggerdown', function (evt) {
-		
+		const password = passwordData
+			.map(data => `${data.hand}|${data.intensity}`)
+			.join(',');
+		document.dispatchEvent(new CustomEvent('password-recorded', { detail: { password } }));
 	});
   },
 
