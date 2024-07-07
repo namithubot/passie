@@ -13,3 +13,30 @@ document.addEventListener('password-recorded', async (e) => {
 		console.log('wrong password');
 	}
 });
+
+document.addEventListener('password-recorded-spatial', async (e) => {
+	const storedPass = localStorage.getItem('password_spatial');
+	const dataPoints = storedPass.split(',');
+	const enteredDataPoints = e.detail.password.split(',');
+	let matched = false;
+	if (dataPoints.length === enteredDataPoints.length) {
+		if(dataPoints.every((dp, i) => {
+			const [ hand, intensity, angle ] = dp.split('|');
+			const [ ehand, eintensity, eangle ] = enteredDataPoints[i].split('|');
+			return ehand === hand
+				&& eintensity === intensity
+				&& (parseFloat(eangle) - parseFloat(angle) < 0.2);
+		})) {
+			matched = true;
+		}
+	}
+	document.dispatchEvent(new CustomEvent('match-result', { result: matched }));
+	console.log(matched);
+	if (matched) {
+		console.log('correct password');
+		document.querySelector('a-scene').exitVR();
+		location.href = "/";
+	} else {
+		console.log('wrong password');
+	}
+});

@@ -6,3 +6,9 @@ document.addEventListener('password-recorded', async (e) => {
 	document.querySelector('a-scene').exitVR();
 	location.href = "/";
 });
+
+document.addEventListener('password-recorded-spatial', async (e) => {
+	localStorage.setItem('password_spatial', e.detail.password);
+	document.querySelector('a-scene').exitVR();
+	location.href = "/";
+});

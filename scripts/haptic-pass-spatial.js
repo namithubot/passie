@@ -54,7 +54,7 @@ AFRAME.registerComponent("passie-intensity-control", {
 		passwordData.push({
 			intensity: self.data.intensity,
 			duration: self.data.duration,
-			position: self.el.object3D.position,
+			position: self.el.object3D.position.clone(),
 			rotation: self.el.object3D.quaternion,
 			hand: self.el.id.includes('left') + 1,
 		});
@@ -64,10 +64,16 @@ AFRAME.registerComponent("passie-intensity-control", {
     });
 
 	el.addEventListener('triggerdown', function (evt) {
+		const angles = [0];
+
+		for (let i = 1; i < passwordData.length; i++) {
+			angles.push(passwordData[i].position.angleTo(passwordData[i - 1].position));
+		}
+
 		const password = passwordData
-			.map(data => `${data.hand}|${data.intensity}`)
+			.map((data, i) => `${data.hand}|${data.intensity}|${angles[i]}`)
 			.join(',');
-		document.dispatchEvent(new CustomEvent('password-recorded', { detail: { password } }));
+		document.dispatchEvent(new CustomEvent('password-recorded-spatial', { detail: { password } }));
 		passwordData = [];
 	});
   },
